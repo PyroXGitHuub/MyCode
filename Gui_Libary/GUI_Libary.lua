@@ -19,7 +19,7 @@ if parent:FindFirstChild("SketchGUILibrary") then
 end
 
 local Library = {}
-Library.Version = "v2.2.0"
+Library.Version = "v2.2.1"
 Library.ThemeColor = Library.ThemeColor
 Library.Flags = {}
 Library.SettingsFileName = "config1"
@@ -590,6 +590,7 @@ function Library.New(titleText, customThemeColor)
     end)
 
     local FilterTitle = Instance.new("TextLabel")
+    FilterTitle.Name = "FilterTitle" -- WICHTIG: Name hinzugefügt, damit wir ihn später finden
     FilterTitle.Size = UDim2.new(1, 0, 0, 30)
     FilterTitle.Position = UDim2.new(0, 10, 0, 0)
     FilterTitle.BackgroundTransparency = 1
@@ -600,24 +601,6 @@ function Library.New(titleText, customThemeColor)
     FilterTitle.TextXAlignment = Enum.TextXAlignment.Left
     FilterTitle.ZIndex = 4
     FilterTitle.Parent = FilterPanel
-
-    local FilterScroll = Instance.new("ScrollingFrame")
-    FilterScroll.Size = UDim2.new(1, -10, 1, -35)
-    FilterScroll.Position = UDim2.new(0, 5, 0, 30)
-    FilterScroll.BackgroundTransparency = 1
-    FilterScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-    FilterScroll.ScrollBarThickness = 4
-    FilterScroll.ZIndex = 4
-    FilterScroll.Parent = FilterPanel
-
-    local FilterListLayout = Instance.new("UIListLayout")
-    FilterListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    FilterListLayout.Padding = UDim.new(0, 5)
-    FilterListLayout.Parent = FilterScroll
-
-    FilterListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        FilterScroll.CanvasSize = UDim2.new(0, 0, 0, FilterListLayout.AbsoluteContentSize.Y + 10)
-    end)
 
     -- Animierted Filter Panel
     local filterOpen = false
@@ -1263,10 +1246,119 @@ function SubObj:AddFilterButton(text, callback)
     OpenBtn.ZIndex = 3
     OpenBtn.Parent = FilterBtnFrame
 
+    -- Eigene Liste für genau diesen Button erstellen
+    local MyFilterScroll = Instance.new("ScrollingFrame")
+    MyFilterScroll.Size = UDim2.new(1, -10, 1, -35)
+    MyFilterScroll.Position = UDim2.new(0, 5, 0, 30)
+    MyFilterScroll.BackgroundTransparency = 1
+    MyFilterScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    MyFilterScroll.ScrollBarThickness = 4
+    MyFilterScroll.Visible = false
+    MyFilterScroll.ZIndex = 4
+    MyFilterScroll.Parent = FilterPanel
+
+    local FilterListLayout = Instance.new("UIListLayout")
+    FilterListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    FilterListLayout.Padding = UDim.new(0, 5)
+    FilterListLayout.Parent = MyFilterScroll
+
+    FilterListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        MyFilterScroll.CanvasSize = UDim2.new(0, 0, 0, FilterListLayout.AbsoluteContentSize.Y + 10)
+    end)
+
     OpenBtn.MouseButton1Click:Connect(function()
+        -- Verstecke alle anderen Listen im FilterPanel
+        for _, child in ipairs(FilterPanel:GetChildren()) do
+            if child:IsA("ScrollingFrame") then
+                child.Visible = false
+            end
+        end
+        -- Zeige nur diese an
+        MyFilterScroll.Visible = true
+        
+        -- Ändere den Titel dynamisch
+        local titleLbl = FilterPanel:FindFirstChild("FilterTitle")
+        if titleLbl then titleLbl.Text = string.upper(text) end
+
         ToggleFilterPanel()
         if callback then callback() end
     end)
+
+    local FilterObj = {}
+    
+    -- Neue AddItem Funktion, die das Item NUR in diese eigene Liste packt
+    function FilterObj:AddItem(itemName, default, itemCallback)
+        if type(itemName) == "table" and not itemName.Name and not itemName.Text then
+            for _, name in ipairs(itemName) do
+                FilterObj:AddItem(name, default, itemCallback)
+            end
+            return
+        end
+
+        if type(itemName) == "table" then
+            local cfg = itemName
+            itemName = cfg.Name or cfg.Text or "Item"
+            default = cfg.Default
+            itemCallback = cfg.Callback
+        end
+
+        -- Der Flag bekommt den Namen vom Filter, damit Configs sich nicht überschneiden
+        local flag = "Filter_" .. text .. "_" .. itemName
+        if Library.Flags[flag] == nil then
+            Library.Flags[flag] = (default ~= nil) and default or false
+        end
+
+        local ItemFrame = Instance.new("Frame")
+        ItemFrame.Size = UDim2.new(1, -5, 0, 30)
+        ItemFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+        ItemFrame.BorderColor3 = Color3.fromRGB(50, 50, 50)
+        ItemFrame.ZIndex = 4
+        ItemFrame.Parent = MyFilterScroll
+
+        local Lbl = Instance.new("TextLabel")
+        Lbl.Size = UDim2.new(1, -55, 1, 0)
+        Lbl.Position = UDim2.new(0, 10, 0, 0)
+        Lbl.BackgroundTransparency = 1
+        Lbl.Font = Enum.Font.SourceSans
+        Lbl.Text = itemName
+        Lbl.TextColor3 = Color3.fromRGB(240, 240, 240)
+        Lbl.TextSize = 13
+        Lbl.TextXAlignment = Enum.TextXAlignment.Left
+        Lbl.ZIndex = 4
+        Lbl.Parent = ItemFrame
+
+        local Switch = Instance.new("TextButton")
+        Switch.Size = UDim2.new(0, 40, 0, 18)
+        Switch.Position = UDim2.new(1, -45, 0.5, -9)
+        Switch.BackgroundColor3 = Library.Flags[flag] and Library.ThemeColor or Color3.fromRGB(35, 35, 35)
+        Switch.BorderColor3 = Color3.fromRGB(60, 60, 60)
+        Switch.Text = Library.Flags[flag] and "ON" or "OFF"
+        Switch.Font = Enum.Font.SourceSansBold
+        Switch.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Switch.TextSize = 11
+        Switch.ZIndex = 4
+        Switch.Parent = ItemFrame
+
+        Switch.MouseButton1Click:Connect(function()
+            Library.Flags[flag] = not Library.Flags[flag]
+            Switch.BackgroundColor3 = Library.Flags[flag] and Library.ThemeColor or Color3.fromRGB(35, 35, 35)
+            Switch.Text = Library.Flags[flag] and "ON" or "OFF"
+            ShowPopup(itemName .. " is now " .. (Library.Flags[flag] and "ON" or "OFF"))
+            
+            if itemCallback then itemCallback(Library.Flags[flag]) end
+        end)
+
+        table.insert(Library.ElementUpdaters, function()
+            local val = Library.Flags[flag]
+            if val ~= nil then
+                Switch.BackgroundColor3 = val and Library.ThemeColor or Color3.fromRGB(35, 35, 35)
+                Switch.Text = val and "ON" or "OFF"
+                if itemCallback then itemCallback(val) end
+            end
+        end)
+    end
+
+    return FilterObj
 end
 
 -- 6. Color Picker (Animiert)
@@ -1696,76 +1788,6 @@ end
         return TabObj
     end
 
-function Window:AddFilterItem(itemName, default, callback)
-    -- Prüfen, ob eine Liste von mehreren Filtern übergeben wurde
-    if type(itemName) == "table" and not itemName.Name and not itemName.Text then
-        for _, name in ipairs(itemName) do
-            Window:AddFilterItem(name, default, callback)
-        end
-        return
-    end
-
-    if type(itemName) == "table" then
-        local cfg = itemName
-        itemName = cfg.Name or cfg.Text or "Item"
-        default = cfg.Default
-        callback = cfg.Callback
-    end
-
-    local flag = "Filter_" .. itemName
-    if Library.Flags[flag] == nil then
-        Library.Flags[flag] = (default ~= nil) and default or false
-    end
-
-    local ItemFrame = Instance.new("Frame")
-    ItemFrame.Size = UDim2.new(1, -5, 0, 30)
-    ItemFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    ItemFrame.BorderColor3 = Color3.fromRGB(50, 50, 50)
-    ItemFrame.ZIndex = 4
-    ItemFrame.Parent = FilterScroll
-
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -55, 1, 0)
-    Label.Position = UDim2.new(0, 10, 0, 0)
-    Label.BackgroundTransparency = 1
-    Label.Font = Enum.Font.SourceSans
-    Label.Text = itemName
-    Label.TextColor3 = Color3.fromRGB(240, 240, 240)
-    Label.TextSize = 13
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.ZIndex = 4
-    Label.Parent = ItemFrame
-
-    local Switch = Instance.new("TextButton")
-    Switch.Size = UDim2.new(0, 40, 0, 18)
-    Switch.Position = UDim2.new(1, -45, 0.5, -9)
-    Switch.BackgroundColor3 = Library.Flags[flag] and Library.ThemeColor or Color3.fromRGB(35, 35, 35)
-    Switch.BorderColor3 = Color3.fromRGB(60, 60, 60)
-    Switch.Text = Library.Flags[flag] and "ON" or "OFF"
-    Switch.Font = Enum.Font.SourceSansBold
-    Switch.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Switch.TextSize = 11
-    Switch.ZIndex = 4
-    Switch.Parent = ItemFrame
-
-    Switch.MouseButton1Click:Connect(function()
-        Library.Flags[flag] = not Library.Flags[flag]
-        Switch.BackgroundColor3 = Library.Flags[flag] and Library.ThemeColor or Color3.fromRGB(35, 35, 35)
-        Switch.Text = Library.Flags[flag] and "ON" or "OFF"
-        ShowPopup(itemName .. " is now " .. (Library.Flags[flag] and "ON" or "OFF"))
-        
-        if callback then callback(Library.Flags[flag]) end
-    end)
-
-    table.insert(Library.ElementUpdaters, function()
-        local val = Library.Flags[flag]
-        if val ~= nil then
-            Switch.BackgroundColor3 = val and Library.ThemeColor or Color3.fromRGB(35, 35, 35)
-            Switch.Text = val and "ON" or "OFF"
-            if callback then callback(val) end
-        end
-    end)
-end
 
     Library.LoadSettings()
     
