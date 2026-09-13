@@ -1697,6 +1697,14 @@ end
     end
 
 function Window:AddFilterItem(itemName, default, callback)
+    -- Prüfen, ob eine Liste von mehreren Filtern übergeben wurde
+    if type(itemName) == "table" and not itemName.Name and not itemName.Text then
+        for _, name in ipairs(itemName) do
+            Window:AddFilterItem(name, default, callback)
+        end
+        return
+    end
+
     if type(itemName) == "table" then
         local cfg = itemName
         itemName = cfg.Name or cfg.Text or "Item"
