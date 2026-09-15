@@ -12,35 +12,31 @@ local TeleportService = game:GetService("TeleportService")
 local player = Players.LocalPlayer
 local camera = Workspace.CurrentCamera
 
--- ==========================================
--- CONFIGURATION (Hier kannst du deine Skripte anpassen)
--- ==========================================
 local Config = {
     UniversalScript = {
         Title = "PyroX Universal Script [BETA]",
         Desc = "its down i will make a remake",
         Url = "https://raw.githubusercontent.com/Dev1lHub/Profekt/refs/heads/main/Github/Games/Universal",
-        IconId = "87599473539232" -- Icon für das Main Frame
+        IconId = "87599473539232"
     },
     GameScripts = {
         [128039018996175] = {
             Title = "The Walking Death Online 3 Script",
             Desc = "a script made for twdo3",
             Url = "https://raw.githubusercontent.com/PyroXGitHuub/MyCode/refs/heads/main/Games/The_Walking_Dead_Online_3.lua",
-            IconId = "87599473539232", -- Icon für das Main Frame
-            SidePanelIconId = "109727374521932" -- NEU: Optionale ID für das Side Panel Image
+            IconId = "87599473539232",
+            SidePanelIconId = "109727374521932"
         },
         [4639625707] = {
             Title = "War Tycoon [BETA]",
             Desc = "a script made for War Tycoon",
             Url = "https://raw.githubusercontent.com/Dev1lHub/Profekt/refs/heads/main/Github/Games/War_Tycoon.lua",
-            IconId = "87599473539232", -- Icon für das Main Frame
-            SidePanelIconId = "133789742491798" -- NEU: Optionale ID für das Side Panel Image
+            IconId = "87599473539232",
+            SidePanelIconId = "133789742491798"
         },
     }
 }
 
--- Verhindern, dass das GUI doppelt geladen wird
 if CoreGui:FindFirstChild("PyroXHubGUI") then
     CoreGui.PyroXHubGUI:Destroy()
 end
@@ -65,9 +61,6 @@ end
 
 playSound(7767565587)
 
--- ==========================================
--- NOTIFICATION SYSTEM
--- ==========================================
 local NotifyGui = Instance.new("ScreenGui")
 NotifyGui.Name = "PyroXNotifications"
 NotifyGui.Parent = CoreGui
@@ -177,7 +170,6 @@ local function sendNotification(title, text, duration)
     end)
 end
 
--- Haupt ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "PyroXHubGUI"
 ScreenGui.Parent = CoreGui
@@ -240,9 +232,6 @@ TweenService:Create(blur, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.Easing
 local originalFOV = camera.FieldOfView
 TweenService:Create(camera, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {FieldOfView = originalFOV - 12}):Play()
 
--- ==========================================
--- LOADING SCREEN
--- ==========================================
 local LoadingOverlay = Instance.new("Frame")
 LoadingOverlay.Name = "LoadingOverlay"
 LoadingOverlay.Size = UDim2.new(1, 0, 1, 0)
@@ -357,14 +346,11 @@ PercentLabel.Font = Enum.Font.GothamMedium
 PercentLabel.ZIndex = 12
 PercentLabel.Parent = LoadingContainer
 
--- ==========================================
--- HAUPTFENSTER (Zentriert)
--- ==========================================
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 680, 0, 420)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-MainFrame.Position = UDim2.new(0.5, 0, 0.40, 0) -- Y-Achse angepasst
+MainFrame.Position = UDim2.new(0.5, 0, 0.40, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(8, 6, 12)
 MainFrame.BackgroundTransparency = 1
 MainFrame.BorderSizePixel = 0
@@ -459,9 +445,6 @@ UltimateLabel.TextSize = 11
 UltimateLabel.Font = Enum.Font.GothamMedium
 UltimateLabel.Parent = MainFrame
 
--- ==========================================
--- ZWEITES FRAME (Andere Scripts)
--- ==========================================
 local SecondaryFrame = Instance.new("Frame")
 SecondaryFrame.Name = "SecondaryFrame"
 SecondaryFrame.Size = UDim2.new(0, 680, 0, 145)
@@ -498,10 +481,6 @@ SecGlowGradient.Transparency = NumberSequence.new({
 })
 SecGlowGradient.Parent = SecGlowStroke
 
-
--- ==========================================
--- GAMES SUPPORT FRAME (Rechte Seite)
--- ==========================================
 local GamesFrame = Instance.new("Frame")
 GamesFrame.Name = "GamesSupportFrame"
 GamesFrame.Size = UDim2.new(0, 260, 1, 160)
@@ -564,9 +543,6 @@ GamesLayout.SortOrder = Enum.SortOrder.LayoutOrder
 GamesLayout.Padding = UDim.new(0, 10)
 GamesLayout.Parent = GamesScroll
 
--- ==========================================
--- JOIN POPUP GUI
--- ==========================================
 local JoinPopup = Instance.new("Frame")
 JoinPopup.Name = "JoinPopup"
 JoinPopup.Size = UDim2.new(0, 300, 0, 140)
@@ -656,10 +632,6 @@ YesBtn.MouseLeave:Connect(function() TweenService:Create(YesStroke, TweenInfo.ne
 NoBtn.MouseEnter:Connect(function() TweenService:Create(NoStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(248, 113, 113)}):Play() end)
 NoBtn.MouseLeave:Connect(function() TweenService:Create(NoStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(60, 40, 90)}):Play() end)
 
-
--- ==========================================
--- GAMES KARTEN FUNKTION
--- ==========================================
 local function addSupportedGame(gameName, gameDesc, placeId, customPanelIconId)
     local card = Instance.new("ImageButton")
     card.Size = UDim2.new(1, -10, 0, 110)
@@ -709,20 +681,19 @@ local function addSupportedGame(gameName, gameDesc, placeId, customPanelIconId)
     clickLabel.Position = UDim2.new(0, 0, 1, -25)
     clickLabel.BackgroundTransparency = 1
     clickLabel.Text = "Click to join game"
-    clickLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Deutlicher gemacht (Weiß)
+    clickLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     clickLabel.TextSize = 11
     clickLabel.Font = Enum.Font.GothamBold
     clickLabel.TextXAlignment = Enum.TextXAlignment.Right
     clickLabel.Parent = overlay
     
-    -- UIStroke hinzugefügt, damit der Text auf jedem Hintergrund hervorsticht
     local clickStroke = Instance.new("UIStroke")
     clickStroke.Color = Color3.fromRGB(0, 0, 0)
     clickStroke.Thickness = 1.5
     clickStroke.Parent = clickLabel
     
     card.MouseEnter:Connect(function()
-        playSound(106351605533621) -- Hover-Sound hinzugefügt
+        playSound(106351605533621)
         TweenService:Create(cardStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(168, 85, 247)}):Play()
         TweenService:Create(overlay, TweenInfo.new(0.2), {BackgroundTransparency = 0.55}):Play()
     end)
@@ -746,18 +717,12 @@ GamesLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     GamesScroll.CanvasSize = UDim2.new(0, 0, 0, GamesLayout.AbsoluteContentSize.Y + 20)
 end)
 
--- ==========================================
--- AUTOMATISCHES LADEN AUS DER CONFIG
--- ==========================================
 for placeId, scriptData in pairs(Config.GameScripts) do
     task.spawn(function()
         addSupportedGame(scriptData.Title, scriptData.Desc, placeId, scriptData.SidePanelIconId)
     end)
 end
 
--- ==========================================
--- RenderStepped / UI Animationen
--- ==========================================
 RunService.RenderStepped:Connect(function(dt)
     GlowGradient.Rotation = (GlowGradient.Rotation + dt * 100) % 360
     SecGlowGradient.Rotation = (SecGlowGradient.Rotation + dt * 100) % 360
@@ -894,7 +859,6 @@ addExternalScript("Bloxstrike", "bloxstrike script", 0, function()
     loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/2a98561d2db34084545ac12269b68961.lua"))()
 end)
 
--- Lade-Logik & Fade-Out
 task.spawn(function()
     task.wait(0.2)
     LoadingStatus.Text = "LOADING PREMIER SCRIPTS..."
@@ -1169,7 +1133,6 @@ local function restoreGUI()
     GamesFrame.Visible = true
     MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
     
-    -- HIER GEFIXT: Y-Position auf 0.40 gesetzt, damit es wieder auf der Originalhöhe ist
     MainFrame.Position = UDim2.new(0.5, 0, 0.40, 0) 
     
     MainFrame.Size = UDim2.new(0, 150, 0, 100)
@@ -1205,7 +1168,6 @@ ToggleBtn.MouseLeave:Connect(function()
     TweenService:Create(ToggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(8, 6, 12)}):Play()
 end)
 
--- Premium Scripts Container
 local ScriptsContainer = Instance.new("Frame")
 ScriptsContainer.Size = UDim2.new(1, -50, 0, 110)
 ScriptsContainer.Position = UDim2.new(0, 25, 0, 155)
@@ -1318,7 +1280,6 @@ end
 local currentPlaceId = game.PlaceId
 local scriptData = Config.GameScripts[currentPlaceId] or Config.UniversalScript
 
--- HIER GEÄNDERT: Zieht sich jetzt die IconId aus der Config für das Main Frame
 local mainIconUrl = "rbxassetid://" .. tostring(scriptData.IconId)
 
 createScriptCard(scriptData.Title, scriptData.Desc, 40, mainIconUrl, function()
