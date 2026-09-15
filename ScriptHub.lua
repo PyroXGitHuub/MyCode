@@ -26,7 +26,7 @@ local Config = {
         [128039018996175] = {
             Title = "The Walking Death Online 3 Script",
             Desc = "a script made for twdo3",
-            Url = "https://raw.githubusercontent.com/Dev1lHub/Profekt/refs/heads/main/Github/Games/TWDO3.lua",
+            Url = "https://raw.githubusercontent.com/PyroXGitHuub/MyCode/refs/heads/main/Games/The_Walking_Dead_Online_3.lua",
             IconId = "87599473539232", -- Icon für das Main Frame
             SidePanelIconId = "109727374521932" -- NEU: Optionale ID für das Side Panel Image
         },
